@@ -13,7 +13,7 @@ const CONFIG = {
 
   // Set to true once GOOGLE_SCRIPT_URL is filled in and you want
   // the app to sync with Google Sheets. False = Local Storage only.
-  SYNC_ENABLED: false,
+  SYNC_ENABLED: true,
 
   APP_NAME: "Smart Finance Tracker",
 
