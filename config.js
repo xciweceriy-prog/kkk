@@ -9,7 +9,7 @@ const CONFIG = {
   // Paste the deployed Google Apps Script Web App URL here
   // (see google-apps-script/Code.gs + README.md for setup steps).
   // Leave empty to run in pure offline / Local Storage mode.
-  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbys8cmipowpPk88yvUyExzcOfDQqF1nXtzbhSE9ygh1jsZZ90Vvjl1LZh7hQbrdrrEmiA/exec",
+  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyAEu_tLHDl8Kbnfbn1hpdYVrl3vS76rEI4lt-cuQRe41g09h9zOhhbBwh0KNiuiNAbBg/exec",
 
   // Set to true once GOOGLE_SCRIPT_URL is filled in and you want
   // the app to sync with Google Sheets. False = Local Storage only.
