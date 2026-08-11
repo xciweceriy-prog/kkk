@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smart Finance Tracker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b1320'/%3E%3Cpath d='M20 70 L40 45 L55 58 L80 28' stroke='%2322c97a' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+
+<!-- Google Font: Poppins (display/body) + Space Mono (figures) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Font Awesome icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="dark">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Smart Finance</span>
+        <span class="brand-sub">Tracker</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-link active" data-target="dashboard"><i class="fa-solid fa-table-columns"></i><span>Dashboard</span></a>
+      <a class="nav-link" data-target="transactions"><i class="fa-solid fa-receipt"></i><span>Transactions</span></a>
+      <a class="nav-link" data-target="reports"><i class="fa-solid fa-chart-pie"></i><span>Reports</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark and light mode">
+        <i class="fa-solid fa-moon"></i>
+        <span>Dark mode</span>
+      </button>
+      <p class="sidebar-note">Data is saved on this device.</p>
+    </div>
+  </aside>
+
+  <!-- mobile nav toggle -->
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Good to see you</h1>
+        <p class="page-sub" id="todayLabel"></p>
+      </div>
+      <button class="btn btn-primary" id="openAddModal">
+        <i class="fa-solid fa-plus"></i> Add transaction
+      </button>
+    </header>
+
+    <!-- ===== Summary cards ===== -->
+    <section class="cards" id="dashboard">
+      <div class="card card-balance">
+        <div class="card-top">
+          <span class="card-label">Current balance</span>
+          <span class="card-icon"><i class="fa-solid fa-wallet"></i></span>
+        </div>
+        <p class="card-value" id="balanceValue">$0.00</p>
+        <span class="card-foot">Across all transactions</span>
+      </div>
+
+      <div class="card card-income">
+        <div class="card-top">
+          <span class="card-label">Total income</span>
+          <span class="card-icon"><i class="fa-solid fa-arrow-trend-up"></i></span>
+        </div>
+        <p class="card-value" id="incomeValue">$0.00</p>
+        <span class="card-foot" id="incomeCount">0 transactions</span>
+      </div>
+
+      <div class="card card-expense">
+        <div class="card-top">
+          <span class="card-label">Total expense</span>
+          <span class="card-icon"><i class="fa-solid fa-arrow-trend-down"></i></span>
+        </div>
+        <p class="card-value" id="expenseValue">$0.00</p>
+        <span class="card-foot" id="expenseCount">0 transactions</span>
+      </div>
+
+      <div class="card card-stat">
+        <div class="card-top">
+          <span class="card-label">Top expense category</span>
+          <span class="card-icon"><i class="fa-solid fa-tags"></i></span>
+        </div>
+        <p class="card-value" id="topCategoryValue">—</p>
+        <span class="card-foot" id="topCategoryAmount">No expenses yet</span>
+      </div>
+    </section>
+
+    <!-- ===== Charts ===== -->
+    <section class="charts" id="reports">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Income vs Expense</h2>
+        </div>
+        <div class="chart-wrap chart-wrap-pie">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Monthly overview</h2>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Transactions ===== -->
+    <section class="panel transactions-panel" id="transactions">
+      <div class="panel-head transactions-head">
+        <h2>Transaction history</h2>
+        <div class="transactions-controls">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search by title..." />
+          </div>
+          <select id="filterType" class="select-input">
+            <option value="All">All types</option>
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+          </select>
+          <button class="btn btn-ghost" id="exportCsvBtn"><i class="fa-solid fa-file-arrow-down"></i> Export CSV</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="txn-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Notes</th>
+              <th class="align-right">Amount</th>
+              <th class="align-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="txnTableBody">
+            <!-- rows injected by ui.js -->
+          </tbody>
+        </table>
+        <div class="empty-state" id="emptyState">
+          <i class="fa-solid fa-receipt"></i>
+          <p>No transactions yet. Add your first one to get started.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <span>Smart Finance Tracker — built with HTML, CSS &amp; JavaScript.</span>
+    </footer>
+  </main>
+
+  <!-- ================= TRANSACTION MODAL ================= -->
+  <div class="modal-overlay" id="txnModalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add transaction</h3>
+        <button class="icon-btn" id="closeModalBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="txnForm" novalidate>
+        <input type="hidden" id="txnId" />
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="txnTitle">Title</label>
+            <input type="text" id="txnTitle" placeholder="e.g. Grocery shopping" maxlength="60" />
+            <span class="field-error" id="err-title"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="txnAmount">Amount</label>
+            <input type="number" id="txnAmount" placeholder="0.00" min="0" step="0.01" />
+            <span class="field-error" id="err-amount"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="txnType">Type</label>
+            <select id="txnType">
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+            <span class="field-error" id="err-type"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="txnCategory">Category</label>
+            <select id="txnCategory"></select>
+            <span class="field-error" id="err-category"></span>
+          </div>
+
+          <div class="form-field">
+            <label for="txnDate">Date</label>
+            <input type="date" id="txnDate" />
+            <span class="field-error" id="err-date"></span>
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="txnNotes">Notes <span class="optional">(optional)</span></label>
+            <textarea id="txnNotes" rows="2" maxlength="200" placeholder="Add a short note..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelModalBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Save transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= CONFIRM DELETE MODAL ================= -->
+  <div class="modal-overlay" id="confirmModalOverlay">
+    <div class="modal modal-sm" role="alertdialog" aria-modal="true">
+      <div class="modal-head">
+        <h3>Delete transaction?</h3>
+      </div>
+      <p class="confirm-text">This will permanently remove this transaction. This action can't be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="cancelDeleteBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn"><i class="fa-solid fa-trash"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="config.js"></script>
+  <script src="utils.js"></script>
+  <script src="storage.js"></script>
+  <script src="api.js"></script>
+  <script src="charts.js"></script>
+  <script src="ui.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
